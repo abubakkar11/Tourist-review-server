@@ -49,11 +49,18 @@ async function run() {
       res.send(review)
     })
     app.get('/reviews' ,async(req,res) =>{
-      const query = {}
+      console.log(req.query.reviewId)
+      let query = {}
+      if(req.query.reviewId){
+        query ={
+          reviewId:req.query.reviewId
+        }
+      }
       const cursor = reviewCollection.find(query)
       const result = await cursor.toArray()
       res.send(result)
     } )
+    
   }
   finally {
 
