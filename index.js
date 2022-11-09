@@ -7,8 +7,10 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 require('dotenv').config()
+var jwt = require('jsonwebtoken');
 
-console.log(process.env.USER_NAME)
+
+
 
 app.get('/', (req, res) => {
   res.send('Food Delivery Server Running')
@@ -20,6 +22,11 @@ const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+function verifyJWT(req , res , next){
+  
+  console.log(req.headers.authorization)
+}
+
 async function run() {
   try {
     const serviceCollection = client.db('tourGuide').collection('service')
@@ -29,6 +36,12 @@ async function run() {
       const cursor = serviceCollection.find(query)
       const result = await cursor.limit(3).toArray()
       res.send(result)
+    })
+    app.post('/jwt' , (req , res)=>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET , {expiresIn:'1h'})
+      res.send({token})
+      console.log(user)
     })
     app.get('/all-services', async (req, res) => {
       const query = {}
@@ -44,35 +57,28 @@ async function run() {
     })
     app.post('/reviews', async (req, res) => {
       const reviews = req.body;
-      console.log(reviews)
+      
       const review = await reviewCollection.insertOne(reviews)
       res.send(review)
     })
-    app.get('/reviews' ,async(req,res) =>{
+    app.get('/reviews' ,verifyJWT ,async(req,res) =>{
       console.log(req.query.reviewId)
+      console.log(req.headers)
       let query = {}
       if(req.query.reviewId){
         query ={
           reviewId:req.query.reviewId
         }
       }
-      const cursor = reviewCollection.find(query)
-      const result = await cursor.toArray()
-      res.send(result)
-    } )
-    app.get('/reviews' ,async(req,res) =>{
-      console.log(req.query.reviewId)
-      let query = {}
-      if(req.query.reviewId){
+      if(req.query.email){
         query ={
-          reviewId:req.query.reviewId
+          email:req.query.email
         }
       }
       const cursor = reviewCollection.find(query)
       const result = await cursor.toArray()
       res.send(result)
     } )
-    
   }
   finally {
 
