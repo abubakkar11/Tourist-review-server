@@ -9,23 +9,14 @@ app.use(express.json())
 require('dotenv').config()
 var jwt = require('jsonwebtoken');
 
-
-
-
 app.get('/', (req, res) => {
   res.send('Food Delivery Server Running')
 })
 
 
-
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.b0mkc5r.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-
-function verifyJWT(req , res , next){
-  
-  console.log(req.headers.authorization)
-}
 
 async function run() {
   try {
@@ -61,9 +52,7 @@ async function run() {
       const review = await reviewCollection.insertOne(reviews)
       res.send(review)
     })
-    app.get('/reviews' ,verifyJWT ,async(req,res) =>{
-      console.log(req.query.reviewId)
-      console.log(req.headers)
+    app.get('/reviews' ,async(req,res) =>{
       let query = {}
       if(req.query.reviewId){
         query ={
