@@ -60,6 +60,18 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     } )
+    app.get('/reviews' ,async(req,res) =>{
+      console.log(req.query.reviewId)
+      let query = {}
+      if(req.query.reviewId){
+        query ={
+          reviewId:req.query.reviewId
+        }
+      }
+      const cursor = reviewCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    } )
     
   }
   finally {
