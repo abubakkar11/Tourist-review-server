@@ -32,7 +32,6 @@ async function run() {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET , {expiresIn:'1h'})
       res.send({token})
-      console.log(user)
     })
     app.get('/all-services', async (req, res) => {
       const query = {}
@@ -40,11 +39,25 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
-    app.post('all-services' , async(req , res) =>{
+    app.put('/reviews/:id' , async(req , res) =>{
+      const id =req.params.id;
+      const filter = {_id : ObjectId(id)}
+      console.log(req.body)
+      const review = req.body;
+      const option = {upsert : true}
+      const updateUser = {
+        $set:{
+          message : review.message,
+          retting : review.retting
+        }
+      }
+      const result = await reviewCollection.updateOne(filter , updateUser , option)
+      res.send(result )
+    })
+    app.post('/all-services' , async(req , res) =>{
       const services = req.body;
       const service = await serviceCollection.insertOne(services)
       res.send(service)
-      console.log(service)
     })
     app.get('/all-services/:id', async (req, res) => {
       const id = req.params.id;
@@ -64,8 +77,15 @@ async function run() {
      const result = await reviewCollection.deleteOne(query)
      res.send(result)
     })
+    app.get('/reviews/:id' , async(req , res)=>{
+      const id = req.params.id;
+      const query = {_id : ObjectId(id)};
+      const result = await reviewCollection.findOne(query)
+      res.send(result)
+    })
     app.get('/reviews' ,async(req,res) =>{
       let query = {}
+      console.log(req.authorization)
       if(req.query.reviewId){
         query ={
           reviewId:req.query.reviewId
@@ -76,7 +96,7 @@ async function run() {
           email:req.query.email
         }
       }
-      const cursor = reviewCollection.find(query)
+      const cursor = reviewCollection.find(query).sort({'retting' : -1})
       const result = await cursor.toArray()
       res.send(result)
     } )
