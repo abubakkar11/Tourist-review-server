@@ -40,6 +40,12 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    app.post('all-services' , async(req , res) =>{
+      const services = req.body;
+      const service = await serviceCollection.insertOne(services)
+      res.send(service)
+      console.log(service)
+    })
     app.get('/all-services/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) }
@@ -48,9 +54,15 @@ async function run() {
     })
     app.post('/reviews', async (req, res) => {
       const reviews = req.body;
-      
       const review = await reviewCollection.insertOne(reviews)
       res.send(review)
+    })
+    app.delete('/reviews/:id' , async(req ,res) =>{
+     const id = req.params.id;
+     const query = {_id : ObjectId(id)}
+     console.log(query)
+     const result = await reviewCollection.deleteOne(query)
+     res.send(result)
     })
     app.get('/reviews' ,async(req,res) =>{
       let query = {}
